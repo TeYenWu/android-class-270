@@ -1,6 +1,7 @@
 package com.example.user.simpleui;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -30,6 +31,11 @@ public class MainActivity extends AppCompatActivity {
 
     String selectedTea = "black tea";
 
+    String menuResults = "";
+
+    SharedPreferences sharedPreferences;
+    SharedPreferences.Editor editor;
+
     List<Order> orders = new ArrayList<>();
 
     @Override
@@ -43,9 +49,16 @@ public class MainActivity extends AppCompatActivity {
         listView = (ListView) findViewById(R.id.listView);
         spinner = (Spinner) findViewById(R.id.spinner);
 
+        sharedPreferences = getSharedPreferences("setting", MODE_PRIVATE);
+        editor = sharedPreferences.edit();
+
+        editText.setText(sharedPreferences.getString("editText", ""));
         editText.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
+                String text = editText.getText().toString();
+                editor.putString("editText", text);
+                editor.commit();
                 if (keyCode == KeyEvent.KEYCODE_ENTER && event.getAction() == KeyEvent.ACTION_DOWN) {
                     submit(v);
                     return true;
@@ -53,6 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 return false;
             }
         });
+
 
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
@@ -89,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
 
         Order order = new Order();
         order.note = text;
-        order.drinkName = selectedTea;
+        order.menuResults = menuResults;
         order.storeInfo = (String)spinner.getSelectedItem();
 
         orders.add(order);
@@ -97,6 +111,7 @@ public class MainActivity extends AppCompatActivity {
         setupListView();
 
         editText.setText("");
+        menuResults = "";
     }
 
     public void goToMenu(View view)
@@ -114,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
             if(resultCode == RESULT_OK)
             {
                 Toast.makeText(this, "完成菜單", Toast.LENGTH_SHORT).show();
-                textView.setText(data.getStringExtra("results"));
+                menuResults = (data.getStringExtra("results"));
             }
         }
     }
