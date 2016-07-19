@@ -16,9 +16,11 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseException;
 import com.parse.ParseObject;
+import com.parse.ParseQuery;
 import com.parse.SaveCallback;
 
 import java.util.ArrayList;
@@ -98,10 +100,27 @@ public class MainActivity extends AppCompatActivity {
         parseObject.saveInBackground(new SaveCallback() {
             @Override
             public void done(ParseException e) {
-                if(e == null)
+                if (e == null)
                     Toast.makeText(MainActivity.this, "上傳成功", Toast.LENGTH_LONG).show();
             }
         });
+
+        ParseQuery<ParseObject> query = new ParseQuery<ParseObject>("Test");
+        query.findInBackground(new FindCallback<ParseObject>() {
+            @Override
+            public void done(List<ParseObject> objects, ParseException e) {
+                if(e == null)
+                {
+                    for (ParseObject object : objects)
+                    {
+                        Toast.makeText(MainActivity.this, object.getString("foo"), Toast.LENGTH_LONG).show();
+                    }
+                }
+
+            }
+        });
+
+
 
         Log.d("Debug", "MainActivity OnCreate");
     }
