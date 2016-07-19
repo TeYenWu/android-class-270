@@ -109,6 +109,7 @@ public class Order extends ParseObject {
                 if(e == null)
                 {
                     Order.pinAllInBackground("Order", objects);
+                    callback.done(objects, e);
                 }
                 else
                 {
