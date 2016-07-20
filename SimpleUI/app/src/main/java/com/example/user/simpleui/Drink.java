@@ -1,5 +1,6 @@
 package com.example.user.simpleui;
 
+import com.parse.DeleteCallback;
 import com.parse.FindCallback;
 import com.parse.Parse;
 import com.parse.ParseClassName;
@@ -82,10 +83,23 @@ public class Drink extends ParseObject {
     {
         Drink.getQuery().findInBackground(new FindCallback<Drink>() {
             @Override
-            public void done(List<Drink> objects, ParseException e) {
+            public void done(final List<Drink> objects, ParseException e) {
                 if(e == null)
                 {
+                    Drink.unpinAllInBackground("Drink", new DeleteCallback() {
+                        @Override
+                        public void done(ParseException e) {
+                            if (e == null)
+                            {
+                                Drink.pinAllInBackground("Drink", objects);
+                            }
+                        }
+                    });
                     callback.done(objects, e);
+                }
+                else
+                {
+                    Drink.getQuery().fromLocalDatastore().findInBackground(callback);
                 }
             }
         });
