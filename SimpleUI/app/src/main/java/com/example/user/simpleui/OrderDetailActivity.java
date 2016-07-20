@@ -1,6 +1,8 @@
 package com.example.user.simpleui;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -8,6 +10,7 @@ import android.widget.TextView;
 import org.w3c.dom.Text;
 
 import java.util.List;
+import java.util.logging.Handler;
 
 public class OrderDetailActivity extends AppCompatActivity {
 
@@ -18,7 +21,7 @@ public class OrderDetailActivity extends AppCompatActivity {
 
         Intent intent = getIntent();
         String note = intent.getStringExtra("note");
-        String menuResults = intent.getStringExtra("menuResults");
+        final String menuResults = intent.getStringExtra("menuResults");
         String storeInfo = intent.getStringExtra("storeInfo");
 
         TextView noteTextView = (TextView) findViewById(R.id.noteTextView);
@@ -41,4 +44,20 @@ public class OrderDetailActivity extends AppCompatActivity {
         menuResultsTextView.setText(text);
 
     }
+
+    public static class GeoCodingTask extends AsyncTask<String, Void, Bitmap>{
+
+        @Override
+        protected Bitmap doInBackground(String... params) {
+            String address = params[0];
+            double[] latlng = Utils.getLatLngFromGoogleMapAPI(address);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Bitmap bitmap) {
+            super.onPostExecute(bitmap);
+        }
+    }
+
 }
