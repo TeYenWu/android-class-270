@@ -2,6 +2,7 @@ package com.example.user.simpleui;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Camera;
 import android.media.Image;
 import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
@@ -9,13 +10,22 @@ import android.os.Bundle;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.gms.maps.CameraUpdate;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+
 import org.w3c.dom.Text;
 
 import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.logging.Handler;
 
-public class OrderDetailActivity extends AppCompatActivity {
+public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingResponse {
+
+    GoogleMap googleMap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,35 +57,53 @@ public class OrderDetailActivity extends AppCompatActivity {
         }
         menuResultsTextView.setText(text);
 
-        (new GeoCodingTask(staticMapImageView)).execute("台北市大安區羅斯福路四段一號");
+        MapFragment mapFragment = (MapFragment)getFragmentManager().findFragmentById(R.id.mapFragment);
 
-    }
-
-    public static class GeoCodingTask extends AsyncTask<String, Void, Bitmap>{
-
-        WeakReference<ImageView> imageViewWeakReference;
-
-        @Override
-        protected Bitmap doInBackground(String... params) {
-            String address = params[0];
-            double[] latlng = Utils.getLatLngFromGoogleMapAPI(address);
-            return Utils.getStaticMap(latlng);
-        }
-
-        @Override
-        protected void onPostExecute(Bitmap bitmap) {
-            super.onPostExecute(bitmap);
-            if(imageViewWeakReference.get() != null && bitmap != null)
-            {
-                ImageView imageView = imageViewWeakReference.get();
-                imageView.setImageBitmap(bitmap);
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap map) {
+                googleMap = map;
+                (new GeoCodingTask(OrderDetailActivity.this)).execute("台北市大安區羅斯福路四段一號");
             }
-        }
+        });
 
-        public GeoCodingTask(ImageView imageView)
+    }
+
+    @Override
+    public void reponseWithGeoCodingResults(LatLng latlng) {
+        if (googleMap != null)
         {
-            this.imageViewWeakReference = new WeakReference<ImageView>(imageView);
+            CameraUpdate cameraUpdate = CameraUpdateFactory.newLatLngZoom(latlng, 17);
+//            googleMap.animateCamera(cameraUpdate);
+            googleMap.moveCamera(cameraUpdate);
         }
     }
+//
+//    public static class GeoCodingTask extends AsyncTask<String, Void, Bitmap>{
+//
+//        WeakReference<ImageView> imageViewWeakReference;
+//
+//        @Override
+//        protected Bitmap doInBackground(String... params) {
+//            String address = params[0];
+//            double[] latlng = Utils.getLatLngFromGoogleMapAPI(address);
+//            return Utils.getStaticMap(latlng);
+//        }
+//
+//        @Override
+//        protected void onPostExecute(Bitmap bitmap) {
+//            super.onPostExecute(bitmap);
+//            if(imageViewWeakReference.get() != null && bitmap != null)
+//            {
+//                ImageView imageView = imageViewWeakReference.get();
+//                imageView.setImageBitmap(bitmap);
+//            }
+//        }
+//
+//        public GeoCodingTask(ImageView imageView)
+//        {
+//            this.imageViewWeakReference = new WeakReference<ImageView>(imageView);
+//        }
+//    }
 
 }
