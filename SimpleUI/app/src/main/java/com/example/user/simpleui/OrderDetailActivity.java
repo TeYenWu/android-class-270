@@ -44,6 +44,8 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
     GoogleApiClient googleApiClient;
     LocationRequest locationRequest;
 
+    Marker marker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -183,8 +185,20 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
     @Override
     public void onLocationChanged(Location location) {
         LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 1));
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 17));
+
+        if (marker == null) {
+            MarkerOptions markerOptions = new MarkerOptions().position(currentLatLng).title("台灣大學").snippet("Hello Google Map");
+            marker = googleMap.addMarker(markerOptions);
+        }
+        else
+        {
+            marker.setPosition(currentLatLng);
+        }
+
     }
+
+    
 //
 //    public static class GeoCodingTask extends AsyncTask<String, Void, Bitmap>{
 //
