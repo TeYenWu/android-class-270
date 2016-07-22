@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Camera;
 import android.location.Location;
+import com.google.android.gms.location.LocationListener;
 import android.media.Image;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -18,6 +19,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -34,12 +36,13 @@ import java.lang.ref.WeakReference;
 import java.util.List;
 import java.util.logging.Handler;
 
-public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+public class OrderDetailActivity extends AppCompatActivity implements GeoCodingTask.GeoCodingResponse, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     final static int ACCESS_FINE_LOCATION_REQUEST_CODE = 1;
 
     GoogleMap googleMap;
     GoogleApiClient googleApiClient;
+    LocationRequest locationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +133,9 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
             return;
         }
 
+//        googleMap.setMyLocationEnabled(true);
+        createLocationRequest();
+
         Location location = LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
 
         LatLng start = new LatLng(25.0186348, 121.5398379);
@@ -161,6 +167,23 @@ public class OrderDetailActivity extends AppCompatActivity implements GeoCodingT
     @Override
     public void onConnectionFailed(ConnectionResult connectionResult) {
 
+    }
+
+    private void createLocationRequest()
+    {
+        if(locationRequest == null)
+        {
+            locationRequest = new LocationRequest();
+            locationRequest.setInterval(1000);
+            locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+            LocationServices.FusedLocationApi.requestLocationUpdates(googleApiClient, locationRequest, this);
+        }
+    }
+
+    @Override
+    public void onLocationChanged(Location location) {
+        LatLng currentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 1));
     }
 //
 //    public static class GeoCodingTask extends AsyncTask<String, Void, Bitmap>{
